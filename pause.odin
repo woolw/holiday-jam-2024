@@ -5,7 +5,7 @@ import "core:time"
 import "vendor:raylib"
 
 pause :: proc() {
-	b_size :: raylib.Vector2{120, 120}
+	b_size :: raylib.Vector2{128, 128}
 
 	g_button :: raylib.Vector2{b_size.x + 30, WINDOW_HEIGHT - b_size.y - 10}
 	g_rec :: raylib.Rectangle {
@@ -16,7 +16,7 @@ pause :: proc() {
 	}
 
 
-	q_button :: raylib.Vector2{(b_size.x + 30) * 2, WINDOW_HEIGHT - b_size.y - 10}
+	q_button :: raylib.Vector2{g_button.x + b_size.x + 30, g_button.y}
 	q_rec :: raylib.Rectangle {
 		x      = q_button.x,
 		y      = q_button.y,
@@ -44,6 +44,9 @@ pause :: proc() {
 	defer raylib.EndDrawing()
 	raylib.ClearBackground(raylib.WHITE)
 
+	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.play]], g_button, 0, 8, raylib.WHITE)
+	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.menu]], q_button, 0, 8, raylib.WHITE)
+
 	raylib.DrawText(
 		"TIME: ",
 		(WINDOW_WIDTH / 2) - raylib.MeasureText("TIME: ", FONT_SIZE),
@@ -56,11 +59,11 @@ pause :: proc() {
 	raylib.DrawText(
 		"SCORE: ",
 		(WINDOW_WIDTH / 2) - raylib.MeasureText("SCORE: ", FONT_SIZE),
-		550,
+		600,
 		FONT_SIZE,
 		raylib.BLACK,
 	)
-	raylib.DrawText(score_str, (WINDOW_WIDTH / 2), 550, FONT_SIZE, raylib.BLACK)
+	raylib.DrawText(score_str, (WINDOW_WIDTH / 2), 600, FONT_SIZE, raylib.BLACK)
 
 	when ODIN_DEBUG {
 		if raylib.CheckCollisionPointRec(m_pos, g_rec) {

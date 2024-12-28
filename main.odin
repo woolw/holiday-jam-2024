@@ -2,6 +2,7 @@ package main
 
 import "core:fmt"
 import "core:mem"
+import "core:path/filepath"
 import "core:strings"
 import "core:time"
 import "vendor:raylib"
@@ -9,7 +10,7 @@ import "vendor:raylib"
 WINDOW_WIDTH :: 1920
 WINDOW_HEIGHT :: 1080
 FPS_LIMIT :: 120
-FONT_SIZE :: 35
+FONT_SIZE :: 70
 
 GAME_SCENE :: enum {
 	Quit,
@@ -19,12 +20,33 @@ GAME_SCENE :: enum {
 	Score,
 }
 
+ASSETS :: enum {
+	menu,
+	pause,
+	play,
+	label,
+	bed_free,
+	bed_occupied,
+}
+
+@(rodata)
+ASSET_KEY := [ASSETS]string {
+	.menu         = "assets/menu16.png",
+	.pause        = "assets/pause16.png",
+	.play         = "assets/play16.png",
+	.label        = "assets/empty_label16.png",
+	.bed_free     = "assets/hospital_bed_free.png",
+	.bed_occupied = "assets/hospital_bed_closed.png",
+}
+
 GAME_STATE :: struct {
-	scene:     GAME_SCENE,
-	sw:        ^time.Stopwatch,
-	t_builder: ^strings.Builder,
-	score:     int,
-	s_builder: ^strings.Builder,
+	scene:        GAME_SCENE,
+	sw:           ^time.Stopwatch,
+	t_builder:    ^strings.Builder,
+	score:        int,
+	s_builder:    ^strings.Builder,
+	textures:     map[string]raylib.Texture2D,
+	bed_occupied: bool,
 }
 glob := GAME_STATE {
 	scene = GAME_SCENE.Menu,
@@ -74,17 +96,20 @@ run :: proc() {
 
 	tb, err := strings.builder_make_none()
 	if err != nil {
-		fmt.eprint(err)
+		fmt.eprintln(err)
 	}
 	defer strings.builder_destroy(&tb)
 	glob.t_builder = &tb
 
 	sb, err2 := strings.builder_make_none()
 	if err2 != nil {
-		fmt.eprint(err2)
+		fmt.eprintln(err2)
 	}
 	defer strings.builder_destroy(&sb)
 	glob.s_builder = &sb
+
+	glob.textures = populate_assets()
+	defer clear_assets(glob.textures)
 
 	menu_loop: for !raylib.WindowShouldClose() {
 		debug_fallback_navigation()
@@ -106,20 +131,20 @@ run :: proc() {
 }
 
 debug_fallback_navigation :: proc() {
-	when !ODIN_DEBUG do return
-
-	if raylib.IsKeyPressed(.ESCAPE) {
-		if glob.scene == .Menu {
-			glob.scene = .Quit
-		} else if glob.scene == .Game {
-			glob.scene = .Pause
-		} else {
-			glob.scene = .Menu
+	when ODIN_DEBUG {
+		if raylib.IsKeyPressed(.ESCAPE) {
+			if glob.scene == .Menu {
+				glob.scene = .Quit
+			} else if glob.scene == .Game {
+				glob.scene = .Pause
+			} else {
+				glob.scene = .Menu
+			}
+		} else if raylib.IsKeyPressed(.G) && (glob.scene == .Menu || glob.scene == .Pause) {
+			glob.scene = .Game
+		} else if raylib.IsKeyPressed(.S) && glob.scene == .Game {
+			glob.scene = .Score
 		}
-	} else if raylib.IsKeyPressed(.G) && (glob.scene == .Menu || glob.scene == .Pause) {
-		glob.scene = .Game
-	} else if raylib.IsKeyPressed(.S) && glob.scene == .Game {
-		glob.scene = .Score
 	}
 }
 
@@ -145,4 +170,25 @@ data_to_cstring :: proc() -> (timer_str: cstring, score_str: cstring) {
 
 reduce_alpha :: proc(c: raylib.Color) -> raylib.Color {
 	return c - raylib.Color{0, 0, 0, 128}
+}
+
+populate_assets :: proc() -> map[string]raylib.Texture2D {
+	assets := make(map[string]raylib.Texture2D)
+	matches, err := filepath.glob("assets/*.png")
+	if err != nil {
+		fmt.eprintln(err)
+	}
+	for match in matches {
+		assets[match] = raylib.LoadTexture(fmt.ctprintf("%s", match))
+	}
+	delete(matches)
+	return assets
+}
+
+clear_assets :: proc(assets: map[string]raylib.Texture2D) {
+	for path, tex in assets {
+		delete(path)
+		raylib.UnloadTexture(tex)
+	}
+	delete(assets)
 }

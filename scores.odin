@@ -5,7 +5,7 @@ import "core:time"
 import "vendor:raylib"
 
 score :: proc() {
-	b_size :: raylib.Vector2{120, 120}
+	b_size :: raylib.Vector2{128, 128}
 
 	q_button :: raylib.Vector2{10, WINDOW_HEIGHT - b_size.y - 10}
 	q_rec :: raylib.Rectangle {
@@ -31,6 +31,8 @@ score :: proc() {
 	defer raylib.EndDrawing()
 	raylib.ClearBackground(raylib.WHITE)
 
+	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.menu]], q_button, 0, 8, raylib.WHITE)
+
 	raylib.DrawText(
 		"TIME: ",
 		(WINDOW_WIDTH / 2) - raylib.MeasureText("TIME: ", FONT_SIZE),
@@ -47,7 +49,7 @@ score :: proc() {
 		FONT_SIZE,
 		raylib.BLACK,
 	)
-	raylib.DrawText(score_str, (WINDOW_WIDTH / 2), 550, FONT_SIZE, raylib.BLACK)
+	raylib.DrawText(score_str, (WINDOW_WIDTH / 2), 600, FONT_SIZE, raylib.BLACK)
 
 	when ODIN_DEBUG {
 		if raylib.CheckCollisionPointRec(m_pos, q_rec) {

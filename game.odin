@@ -5,7 +5,7 @@ import "core:time"
 import "vendor:raylib"
 
 game :: proc() {
-	b_size :: raylib.Vector2{120, 120}
+	b_size :: raylib.Vector2{128, 128}
 
 	p_button :: raylib.Vector2{10, WINDOW_HEIGHT - b_size.y - 10}
 	p_rec :: raylib.Rectangle {
@@ -13,6 +13,15 @@ game :: proc() {
 		y      = p_button.y,
 		width  = b_size.x,
 		height = b_size.y,
+	}
+
+	bed_size :: raylib.Vector2{256, 128}
+	bed_pos :: raylib.Vector2{WINDOW_WIDTH - bed_size.x - 10, WINDOW_HEIGHT - bed_size.y - 10}
+	bed_rec :: raylib.Rectangle {
+		x      = bed_pos.x,
+		y      = bed_pos.y,
+		width  = bed_size.x,
+		height = bed_size.y,
 	}
 
 	time.stopwatch_start(glob.sw)
@@ -24,12 +33,22 @@ game :: proc() {
 	if raylib.IsMouseButtonReleased(.LEFT) {
 		if raylib.CheckCollisionPointRec(m_pos, p_rec) {
 			glob.scene = .Pause
+		} else if raylib.CheckCollisionPointRec(m_pos, bed_rec) {
+			glob.bed_occupied = !glob.bed_occupied
 		}
 	}
 
 	raylib.BeginDrawing()
 	defer raylib.EndDrawing()
 	raylib.ClearBackground(raylib.WHITE)
+
+	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.pause]], p_button, 0, 8, raylib.WHITE)
+
+	if glob.bed_occupied {
+		raylib.DrawTextureEx(glob.textures[ASSET_KEY[.bed_occupied]], bed_pos, 0, 8, raylib.WHITE)
+	} else {
+		raylib.DrawTextureEx(glob.textures[ASSET_KEY[.bed_free]], bed_pos, 0, 8, raylib.WHITE)
+	}
 
 	raylib.DrawText(
 		"TIME: ",

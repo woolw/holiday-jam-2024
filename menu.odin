@@ -1,13 +1,14 @@
 package main
 
+import "core:math"
 import "core:strings"
 import "core:time"
 import "vendor:raylib"
 
 menu :: proc() {
-	b_size :: raylib.Vector2{500, 80}
+	b_size :: raylib.Vector2{512, 128}
 
-	g_button :: raylib.Vector2{(WINDOW_WIDTH / 2) - 250, 480 + 120 * 1}
+	g_button :: raylib.Vector2{(WINDOW_WIDTH - b_size.x) / 2, 580}
 	g_rec :: raylib.Rectangle {
 		x      = g_button.x,
 		y      = g_button.y,
@@ -16,7 +17,7 @@ menu :: proc() {
 	}
 
 
-	q_button :: raylib.Vector2{(WINDOW_WIDTH / 2) - 250, 480 + 120 * 2}
+	q_button :: raylib.Vector2{(WINDOW_WIDTH - b_size.x) / 2, g_button.y + b_size.y + 30}
 	q_rec :: raylib.Rectangle {
 		x      = q_button.x,
 		y      = q_button.y,
@@ -50,19 +51,29 @@ menu :: proc() {
 	defer raylib.EndDrawing()
 	raylib.ClearBackground(raylib.WHITE)
 
+	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.label]], g_button, 0, 8, raylib.WHITE)
+	raylib.DrawText(
+		"PLAY",
+		i32(g_button.x + (b_size.x - auto_cast raylib.MeasureText("PLAY", FONT_SIZE)) / 2),
+		i32(g_button.y + math.floor(b_size.y / 4)),
+		FONT_SIZE,
+		raylib.BLACK,
+	)
+	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.label]], q_button, 0, 8, raylib.WHITE)
+	raylib.DrawText(
+		"QUIT",
+		i32(q_button.x + (b_size.x - auto_cast raylib.MeasureText("QUIT", FONT_SIZE)) / 2),
+		i32(q_button.y + math.floor(b_size.y / 4)),
+		FONT_SIZE,
+		raylib.BLACK,
+	)
+
 	when ODIN_DEBUG {
 		if raylib.CheckCollisionPointRec(m_pos, g_rec) {
 			raylib.DrawRectangleRec(g_rec, reduce_alpha(raylib.LIME))
 		} else {
 			raylib.DrawRectangleRec(g_rec, reduce_alpha(raylib.GRAY))
 		}
-		raylib.DrawText(
-			"PLAY",
-			auto_cast g_button.x + 150,
-			auto_cast g_button.y + 5,
-			FONT_SIZE * 2,
-			reduce_alpha(raylib.BLACK),
-		)
 
 		if raylib.CheckCollisionPointRec(m_pos, q_rec) {
 			raylib.DrawRectangleRec(q_rec, reduce_alpha(raylib.RED))
