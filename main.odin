@@ -61,24 +61,6 @@ main :: proc() {
 	run()
 }
 
-debug_fallback_navigation :: proc() {
-	when !ODIN_DEBUG do return
-
-	if raylib.IsKeyPressed(.ESCAPE) {
-		if glob.scene == .Menu {
-			glob.scene = .Quit
-		} else if glob.scene == .Game {
-			glob.scene = .Pause
-		} else {
-			glob.scene = .Menu
-		}
-	} else if raylib.IsKeyPressed(.G) && (glob.scene == .Menu || glob.scene == .Pause) {
-		glob.scene = .Game
-	} else if raylib.IsKeyPressed(.S) && glob.scene == .Game {
-		glob.scene = .Score
-	}
-}
-
 run :: proc() {
 	raylib.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "DOWN BELOW!")
 	defer raylib.CloseWindow()
@@ -123,6 +105,24 @@ run :: proc() {
 	}
 }
 
+debug_fallback_navigation :: proc() {
+	when !ODIN_DEBUG do return
+
+	if raylib.IsKeyPressed(.ESCAPE) {
+		if glob.scene == .Menu {
+			glob.scene = .Quit
+		} else if glob.scene == .Game {
+			glob.scene = .Pause
+		} else {
+			glob.scene = .Menu
+		}
+	} else if raylib.IsKeyPressed(.G) && (glob.scene == .Menu || glob.scene == .Pause) {
+		glob.scene = .Game
+	} else if raylib.IsKeyPressed(.S) && glob.scene == .Game {
+		glob.scene = .Score
+	}
+}
+
 data_to_cstring :: proc() -> (timer_str: cstring, score_str: cstring) {
 	ms := time.duration_milliseconds(time.stopwatch_duration(glob.sw^))
 	s := int(ms / 1000) % 60
@@ -141,4 +141,8 @@ data_to_cstring :: proc() -> (timer_str: cstring, score_str: cstring) {
 	score_str = strings.to_cstring(glob.s_builder)
 
 	return timer_str, score_str
+}
+
+reduce_alpha :: proc(c: raylib.Color) -> raylib.Color {
+	return c - raylib.Color{0, 0, 0, 128}
 }

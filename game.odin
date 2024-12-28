@@ -60,20 +60,26 @@ game :: proc() {
 
 	when ODIN_DEBUG {
 		if raylib.CheckCollisionPointRec(m_pos, p_rec) {
-			raylib.DrawRectangleRec(p_rec, raylib.YELLOW)
+			raylib.DrawRectangleRec(p_rec, reduce_alpha(raylib.YELLOW))
 		} else {
-			raylib.DrawRectangleRec(p_rec, raylib.GRAY)
+			raylib.DrawRectangleRec(p_rec, reduce_alpha(raylib.GRAY))
 		}
-		raylib.DrawText("||", auto_cast p_button.x + 5, auto_cast p_button.y + 5, 70, raylib.BLACK)
+		raylib.DrawText(
+			"||",
+			auto_cast p_button.x + 5,
+			auto_cast p_button.y + 5,
+			FONT_SIZE * 2,
+			reduce_alpha(raylib.BLACK),
+		)
 
 		if raylib.IsMouseButtonDown(.LEFT) {
-			raylib.DrawCircleV(m_pos, 40, raylib.ORANGE)
+			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.ORANGE))
 		} else if raylib.IsMouseButtonDown(.RIGHT) {
-			raylib.DrawCircleV(m_pos, 40, raylib.PURPLE)
+			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.PURPLE))
 		} else {
-			raylib.DrawCircleV(m_pos, 40, raylib.GRAY)
+			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.GRAY))
 		}
 
-		raylib.DrawText("GAME", 0, 0, 100, raylib.PURPLE)
+		raylib.DrawText("GAME", 0, 0, 100, reduce_alpha(raylib.PURPLE))
 	}
 }
