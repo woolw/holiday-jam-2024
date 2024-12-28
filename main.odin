@@ -186,16 +186,14 @@ debug_fallback_navigation :: proc() {
 }
 
 data_to_cstring :: proc() -> (timer_str: cstring, score_str: cstring) {
-	ms := time.duration_milliseconds(time.stopwatch_duration(glob.sw^))
-	s := int(ms / 1000) % 60
-	m := int(ms / 60_000)
+	_, m, s, ns := time.precise_clock_from_stopwatch(glob.sw^)
 
 	strings.builder_reset(glob.t_builder)
 	strings.write_int(glob.t_builder, m)
 	strings.write_rune(glob.t_builder, ':')
 	strings.write_int(glob.t_builder, s)
 	strings.write_rune(glob.t_builder, ':')
-	strings.write_int(glob.t_builder, int(ms) % 1000)
+	strings.write_int(glob.t_builder, int(ns) % 1_000_000)
 	timer_str = strings.to_cstring(glob.t_builder)
 
 	strings.builder_reset(glob.s_builder)
