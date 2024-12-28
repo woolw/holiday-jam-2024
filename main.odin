@@ -27,6 +27,8 @@ ASSETS :: enum {
 	label,
 	bed_free,
 	bed_occupied,
+	mole,
+	mole_hurt,
 }
 
 @(rodata)
@@ -37,16 +39,40 @@ ASSET_KEY := [ASSETS]string {
 	.label        = "assets/empty_label16.png",
 	.bed_free     = "assets/hospital_bed_free.png",
 	.bed_occupied = "assets/hospital_bed_closed.png",
+	.mole         = "assets/mole.png",
+	.mole_hurt    = "assets/mole_hurt.png",
+}
+
+MOLE_STATE :: enum {
+	curious,
+	cautious,
+	downed,
+	queued,
+}
+
+@(rodata)
+MOLE_POS := [4]raylib.Rectangle {
+	{x = 150, y = 665, width = 128, height = 128},
+	{x = 400, y = 580, width = 128, height = 128},
+	{x = 730, y = 450, width = 128, height = 128},
+	{x = 295, y = 320, width = 128, height = 128},
+}
+
+Mole :: struct {
+	state:    MOLE_STATE,
+	cooldown: u8,
+	pos:      raylib.Rectangle,
 }
 
 GAME_STATE :: struct {
-	scene:        GAME_SCENE,
-	sw:           ^time.Stopwatch,
-	t_builder:    ^strings.Builder,
-	score:        int,
-	s_builder:    ^strings.Builder,
-	textures:     map[string]raylib.Texture2D,
-	bed_occupied: bool,
+	scene:         GAME_SCENE,
+	sw:            ^time.Stopwatch,
+	t_builder:     ^strings.Builder,
+	score:         int,
+	s_builder:     ^strings.Builder,
+	textures:      map[string]raylib.Texture2D,
+	moles:         [4]Mole,
+	patient_queue: [dynamic]^Mole,
 }
 glob := GAME_STATE {
 	scene = GAME_SCENE.Menu,
@@ -111,12 +137,21 @@ run :: proc() {
 	glob.textures = populate_assets()
 	defer clear_assets(glob.textures)
 
+	for &m, i in glob.moles {
+		m = {
+			cooldown = 1,
+			state    = .cautious,
+			pos      = MOLE_POS[i],
+		}
+	}
+
 	menu_loop: for !raylib.WindowShouldClose() {
 		debug_fallback_navigation()
 
 		switch glob.scene {
 		case .Menu:
 			time.stopwatch_reset(glob.sw)
+			clear(&glob.patient_queue)
 			menu()
 		case .Game:
 			game()
@@ -128,6 +163,8 @@ run :: proc() {
 			break menu_loop
 		}
 	}
+
+	delete(glob.patient_queue)
 }
 
 debug_fallback_navigation :: proc() {

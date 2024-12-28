@@ -33,8 +33,45 @@ game :: proc() {
 	if raylib.IsMouseButtonReleased(.LEFT) {
 		if raylib.CheckCollisionPointRec(m_pos, p_rec) {
 			glob.scene = .Pause
-		} else if raylib.CheckCollisionPointRec(m_pos, bed_rec) {
-			glob.bed_occupied = !glob.bed_occupied
+		} else if len(glob.patient_queue) > 0 && raylib.CheckCollisionPointRec(m_pos, bed_rec) {
+			glob.patient_queue[0].cooldown = 0
+			pop_front(&glob.patient_queue)
+		}
+	}
+
+	for &m, i in glob.moles {
+		if m.cooldown == 0 {
+			m.cooldown = 1
+			#partial switch m.state {
+			case .cautious:
+				m.state = .curious
+			case .curious:
+				m.state = .cautious
+			case .queued:
+				m.state = .curious
+			}
+
+			m.pos = get_pos_for_state(m.state, i)
+		}
+
+		if raylib.IsMouseButtonReleased(.LEFT) &&
+		   raylib.CheckCollisionPointRec(m_pos, m.pos) &&
+		   m.state != .queued {
+			m.cooldown = 0
+			if m.state == .curious {
+				_, _, s := time.clock_from_stopwatch(glob.sw^)
+				glob.score += s
+			} else if m.state == .downed {
+				m.cooldown = 1
+				m.state = .queued
+				append(&glob.patient_queue, &m)
+			}
+		} else if raylib.IsMouseButtonReleased(.RIGHT) &&
+		   raylib.CheckCollisionPointRec(m_pos, m.pos) &&
+		   m.state == .curious {
+			m.cooldown = 1
+			m.state = .downed
+			glob.score -= 10
 		}
 	}
 
@@ -42,9 +79,32 @@ game :: proc() {
 	defer raylib.EndDrawing()
 	raylib.ClearBackground(raylib.WHITE)
 
+	draw_mole: for &m in glob.moles {
+		if len(glob.patient_queue) > 0 && &m == glob.patient_queue[0] {
+			continue draw_mole
+		}
+		if m.state == .downed || m.state == .queued {
+			raylib.DrawTextureEx(
+				glob.textures[ASSET_KEY[.mole_hurt]],
+				{m.pos.x, m.pos.y},
+				0,
+				8,
+				raylib.WHITE,
+			)
+		} else {
+			raylib.DrawTextureEx(
+				glob.textures[ASSET_KEY[.mole]],
+				{m.pos.x, m.pos.y},
+				0,
+				8,
+				raylib.WHITE,
+			)
+		}
+	}
+
 	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.pause]], p_button, 0, 8, raylib.WHITE)
 
-	if glob.bed_occupied {
+	if len(glob.patient_queue) > 0 {
 		raylib.DrawTextureEx(glob.textures[ASSET_KEY[.bed_occupied]], bed_pos, 0, 8, raylib.WHITE)
 	} else {
 		raylib.DrawTextureEx(glob.textures[ASSET_KEY[.bed_free]], bed_pos, 0, 8, raylib.WHITE)
@@ -76,29 +136,15 @@ game :: proc() {
 		FONT_SIZE,
 		raylib.BLACK,
 	)
+}
 
-	when ODIN_DEBUG {
-		if raylib.CheckCollisionPointRec(m_pos, p_rec) {
-			raylib.DrawRectangleRec(p_rec, reduce_alpha(raylib.YELLOW))
-		} else {
-			raylib.DrawRectangleRec(p_rec, reduce_alpha(raylib.GRAY))
-		}
-		raylib.DrawText(
-			"||",
-			auto_cast p_button.x + 5,
-			auto_cast p_button.y + 5,
-			FONT_SIZE * 2,
-			reduce_alpha(raylib.BLACK),
-		)
-
-		if raylib.IsMouseButtonDown(.LEFT) {
-			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.ORANGE))
-		} else if raylib.IsMouseButtonDown(.RIGHT) {
-			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.PURPLE))
-		} else {
-			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.GRAY))
-		}
-
-		raylib.DrawText("GAME", 0, 0, 100, reduce_alpha(raylib.PURPLE))
+get_pos_for_state :: proc(ms: MOLE_STATE, i: int) -> raylib.Rectangle {
+	#partial switch ms {
+	case .curious:
+		upshift := MOLE_POS[i]
+		upshift.y -= 50
+		return upshift
+	case:
+		return MOLE_POS[i]
 	}
 }

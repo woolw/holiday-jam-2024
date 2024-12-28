@@ -25,14 +25,6 @@ menu :: proc() {
 		height = b_size.y,
 	}
 
-	p_button :: raylib.Vector2{10, WINDOW_HEIGHT - 130}
-	p_rec :: raylib.Rectangle {
-		x      = p_button.x,
-		y      = p_button.y,
-		width  = 120,
-		height = 120,
-	}
-
 	m_pos := raylib.GetMousePosition()
 
 	if raylib.IsMouseButtonReleased(.LEFT) {
@@ -42,8 +34,6 @@ menu :: proc() {
 		} else if raylib.CheckCollisionPointRec(m_pos, q_rec) {
 			glob.scene = .Quit
 			return
-		} else if raylib.CheckCollisionPointRec(m_pos, p_rec) {
-			raylib.ToggleFullscreen()
 		}
 	}
 
@@ -57,7 +47,7 @@ menu :: proc() {
 		i32(g_button.x + (b_size.x - auto_cast raylib.MeasureText("PLAY", FONT_SIZE)) / 2),
 		i32(g_button.y + math.floor(b_size.y / 4)),
 		FONT_SIZE,
-		raylib.BLACK,
+		raylib.GREEN,
 	)
 	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.label]], q_button, 0, 8, raylib.WHITE)
 	raylib.DrawText(
@@ -65,57 +55,35 @@ menu :: proc() {
 		i32(q_button.x + (b_size.x - auto_cast raylib.MeasureText("QUIT", FONT_SIZE)) / 2),
 		i32(q_button.y + math.floor(b_size.y / 4)),
 		FONT_SIZE,
-		raylib.BLACK,
+		raylib.RED,
 	)
 
 	when ODIN_DEBUG {
-		if raylib.CheckCollisionPointRec(m_pos, g_rec) {
-			raylib.DrawRectangleRec(g_rec, reduce_alpha(raylib.LIME))
-		} else {
-			raylib.DrawRectangleRec(g_rec, reduce_alpha(raylib.GRAY))
-		}
-
-		if raylib.CheckCollisionPointRec(m_pos, q_rec) {
-			raylib.DrawRectangleRec(q_rec, reduce_alpha(raylib.RED))
-		} else {
-			raylib.DrawRectangleRec(q_rec, reduce_alpha(raylib.GRAY))
-		}
-		raylib.DrawText(
-			"QUIT",
-			auto_cast q_button.x + 150,
-			auto_cast q_button.y + 5,
-			FONT_SIZE * 2,
-			reduce_alpha(raylib.BLACK),
-		)
-
-		if raylib.CheckCollisionPointRec(m_pos, p_rec) {
-			raylib.DrawRectangleRec(p_rec, reduce_alpha(raylib.BLUE))
-		} else {
-			raylib.DrawRectangleRec(p_rec, reduce_alpha(raylib.GRAY))
+		p_button :: raylib.Vector2{10, WINDOW_HEIGHT - 130}
+		p_rec :: raylib.Rectangle {
+			x      = p_button.x,
+			y      = p_button.y,
+			width  = 120,
+			height = 120,
 		}
 		raylib.DrawText(
 			raylib.IsWindowFullscreen() ? "[X]" : "[ ]",
 			auto_cast p_button.x + 5,
 			auto_cast p_button.y + 5,
-			FONT_SIZE * 2,
+			FONT_SIZE,
 			reduce_alpha(raylib.BLACK),
 		)
 		raylib.DrawText(
 			"FULLSCREEN (at your own risk)",
 			auto_cast (p_button.x + 125),
 			auto_cast p_button.y + 5,
-			FONT_SIZE * 2,
+			FONT_SIZE,
 			reduce_alpha(raylib.BLACK),
 		)
-
-		if raylib.IsMouseButtonDown(.LEFT) {
-			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.ORANGE))
-		} else if raylib.IsMouseButtonDown(.RIGHT) {
-			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.PURPLE))
-		} else {
-			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.GRAY))
+		if raylib.IsMouseButtonReleased(.LEFT) {
+			if raylib.CheckCollisionPointRec(m_pos, p_rec) {
+				raylib.ToggleFullscreen()
+			}
 		}
-
-		raylib.DrawText("MENU", 0, 0, 100, reduce_alpha(raylib.PURPLE))
 	}
 }

@@ -50,29 +50,4 @@ score :: proc() {
 		raylib.BLACK,
 	)
 	raylib.DrawText(score_str, (WINDOW_WIDTH / 2), 600, FONT_SIZE, raylib.BLACK)
-
-	when ODIN_DEBUG {
-		if raylib.CheckCollisionPointRec(m_pos, q_rec) {
-			raylib.DrawRectangleRec(q_rec, reduce_alpha(raylib.RED))
-		} else {
-			raylib.DrawRectangleRec(q_rec, reduce_alpha(raylib.GRAY))
-		}
-		raylib.DrawText(
-			"Q",
-			auto_cast q_button.x + 5,
-			auto_cast q_button.y + 5,
-			FONT_SIZE * 2,
-			reduce_alpha(raylib.BLACK),
-		)
-
-		if raylib.IsMouseButtonDown(.LEFT) {
-			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.ORANGE))
-		} else if raylib.IsMouseButtonDown(.RIGHT) {
-			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.PURPLE))
-		} else {
-			raylib.DrawCircleV(m_pos, 40, reduce_alpha(raylib.GRAY))
-		}
-
-		raylib.DrawText("SCORES", 0, 0, 100, reduce_alpha(raylib.PURPLE))
-	}
 }
