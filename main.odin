@@ -60,7 +60,7 @@ MOLE_POS := [4]raylib.Rectangle {
 
 Mole :: struct {
 	state:    MOLE_STATE,
-	cooldown: u8,
+	cooldown: f32,
 	pos:      raylib.Rectangle,
 }
 

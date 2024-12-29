@@ -1,10 +1,15 @@
 package main
 
+import "core:math/rand"
 import "core:strings"
 import "core:time"
 import "vendor:raylib"
 
 game :: proc() {
+	if len(glob.moles) == len(glob.patient_queue) {
+		glob.scene = .Score
+	}
+
 	b_size :: raylib.Vector2{128, 128}
 
 	p_button :: raylib.Vector2{10, WINDOW_HEIGHT - b_size.y - 10}
@@ -33,21 +38,26 @@ game :: proc() {
 	if raylib.IsMouseButtonReleased(.LEFT) {
 		if raylib.CheckCollisionPointRec(m_pos, p_rec) {
 			glob.scene = .Pause
-		} else if len(glob.patient_queue) > 0 && raylib.CheckCollisionPointRec(m_pos, bed_rec) {
-			glob.patient_queue[0].cooldown = 0
-			pop_front(&glob.patient_queue)
 		}
 	}
 
+	dT := raylib.GetFrameTime()
+
 	for &m, i in glob.moles {
-		if m.cooldown == 0 {
-			m.cooldown = 1
+		if m.state == .cautious ||
+		   m.state == .curious ||
+		   len(glob.patient_queue) > 0 && &m == glob.patient_queue[0] {
+			m.cooldown -= dT
+		}
+		if m.cooldown <= 0 {
+			m.cooldown = rand.float32() * 3 + 2
 			#partial switch m.state {
 			case .cautious:
 				m.state = .curious
 			case .curious:
 				m.state = .cautious
 			case .queued:
+				pop_front(&glob.patient_queue)
 				m.state = .curious
 			}
 
@@ -56,13 +66,14 @@ game :: proc() {
 
 		if raylib.IsMouseButtonReleased(.LEFT) &&
 		   raylib.CheckCollisionPointRec(m_pos, m.pos) &&
-		   m.state != .queued {
+		   m.state != .queued &&
+		   m.state != .cautious {
 			m.cooldown = 0
 			if m.state == .curious {
 				_, _, s := time.clock_from_stopwatch(glob.sw^)
 				glob.score += s
 			} else if m.state == .downed {
-				m.cooldown = 1
+				m.cooldown = rand.float32() * 3 + 2
 				m.state = .queued
 				append(&glob.patient_queue, &m)
 			}
@@ -79,10 +90,52 @@ game :: proc() {
 	defer raylib.EndDrawing()
 	raylib.ClearBackground(raylib.WHITE)
 
+	c_builder := strings.builder_make()
+	defer strings.builder_destroy(&c_builder)
 	draw_mole: for &m in glob.moles {
+		cooldown_vis: if m.state != .downed {
+			strings.builder_reset(&c_builder)
+			strings.write_f32(&c_builder, m.cooldown, 'f')
+
+			if m.state == .queued {break cooldown_vis}
+			raylib.DrawText(
+				strings.to_cstring(&c_builder),
+				auto_cast m.pos.x,
+				auto_cast (m.pos.y + m.pos.height),
+				FONT_SIZE / 3,
+				raylib.BLACK,
+			)
+		}
+
 		if len(glob.patient_queue) > 0 && &m == glob.patient_queue[0] {
+			raylib.DrawText(
+				strings.to_cstring(&c_builder),
+				auto_cast bed_pos.x,
+				auto_cast (bed_pos.y - 30),
+				FONT_SIZE / 3,
+				raylib.GREEN,
+			)
+
 			continue draw_mole
 		}
+		if m.state == .queued {
+			raylib.DrawText(
+				"QUEUED",
+				auto_cast m.pos.x,
+				auto_cast (m.pos.y + m.pos.height),
+				FONT_SIZE / 3,
+				raylib.GREEN,
+			)
+		} else if m.state == .downed {
+			raylib.DrawText(
+				"DOWNED",
+				auto_cast m.pos.x,
+				auto_cast (m.pos.y + m.pos.height),
+				FONT_SIZE / 3,
+				raylib.RED,
+			)
+		}
+
 		if m.state == .downed || m.state == .queued {
 			raylib.DrawTextureEx(
 				glob.textures[ASSET_KEY[.mole_hurt]],
