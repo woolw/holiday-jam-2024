@@ -40,6 +40,7 @@ menu :: proc() {
 	raylib.BeginDrawing()
 	defer raylib.EndDrawing()
 	raylib.ClearBackground(raylib.WHITE)
+	raylib.DrawTexture(glob.textures[ASSET_KEY[.menu_bg]], 0, 0, raylib.WHITE)
 
 	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.label]], g_button, 0, 8, raylib.WHITE)
 	raylib.DrawText(
@@ -71,14 +72,14 @@ menu :: proc() {
 			auto_cast p_button.x + 5,
 			auto_cast p_button.y + 5,
 			FONT_SIZE,
-			reduce_alpha(raylib.BLACK),
+			raylib.BLACK,
 		)
 		raylib.DrawText(
 			"FULLSCREEN (at your own risk)",
 			auto_cast (p_button.x + 125),
 			auto_cast p_button.y + 5,
 			FONT_SIZE,
-			reduce_alpha(raylib.BLACK),
+			raylib.BLACK,
 		)
 		if raylib.IsMouseButtonReleased(.LEFT) {
 			if raylib.CheckCollisionPointRec(m_pos, p_rec) {

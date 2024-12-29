@@ -1,0 +1,11 @@
+Rescue the moles from the hammers.
+Clicking on a mole that peeks it's head above ground will lower it.
+If you do this while a hammer is hovering above, your score will increase.
+If your mole gets hit, you will loose points, and your mole gets hurt. 
+Click on it to add the mole to the patients-queue.
+Patients will get healed when resting in the bed.
+
+The game ends when all moles are hurt.
+
+The timer below a mole will indicate when it will peek, or retract from a hole.
+Hammers will increase in number over time.

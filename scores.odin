@@ -34,6 +34,14 @@ score :: proc() {
 	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.menu]], q_button, 0, 8, raylib.WHITE)
 
 	raylib.DrawText(
+		"YOU LOST",
+		(WINDOW_WIDTH - raylib.MeasureText("YOU LOST", FONT_SIZE * 5)) / 2,
+		100,
+		FONT_SIZE * 5,
+		raylib.RED,
+	)
+
+	raylib.DrawText(
 		"TIME: ",
 		(WINDOW_WIDTH / 2) - raylib.MeasureText("TIME: ", FONT_SIZE),
 		500,

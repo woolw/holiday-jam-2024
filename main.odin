@@ -22,6 +22,7 @@ GAME_SCENE :: enum {
 
 ASSETS :: enum {
 	menu,
+	menu_bg,
 	pause,
 	play,
 	label,
@@ -35,6 +36,7 @@ ASSETS :: enum {
 @(rodata)
 ASSET_KEY := [ASSETS]string {
 	.menu         = "assets/menu16.png",
+	.menu_bg      = "assets/menu.png",
 	.pause        = "assets/pause16.png",
 	.play         = "assets/play16.png",
 	.label        = "assets/empty_label16.png",
@@ -53,17 +55,31 @@ MOLE_STATE :: enum {
 }
 
 @(rodata)
-MOLE_POS := [4]raylib.Rectangle {
+MOLE_POS := []raylib.Rectangle {
 	{x = 150, y = 665, width = 128, height = 128},
 	{x = 400, y = 580, width = 128, height = 128},
 	{x = 730, y = 450, width = 128, height = 128},
 	{x = 295, y = 320, width = 128, height = 128},
+	{x = 1640, y = 440, width = 128, height = 128},
+	{x = 1000, y = 630, width = 128, height = 128},
+	{x = 1300, y = 735, width = 128, height = 128},
 }
 
 Mole :: struct {
 	state:    MOLE_STATE,
 	cooldown: f32,
 	pos:      raylib.Rectangle,
+}
+
+HAMMER_STATE :: enum {
+	cooldown,
+	ready,
+	struck,
+}
+Hammer :: struct {
+	state:    HAMMER_STATE,
+	cooldown: f32,
+	target:   Maybe(^Mole),
 }
 
 GAME_STATE :: struct {
@@ -73,8 +89,9 @@ GAME_STATE :: struct {
 	score:         int,
 	s_builder:     ^strings.Builder,
 	textures:      map[string]raylib.Texture2D,
-	moles:         [4]Mole,
+	moles:         [dynamic]Mole,
 	patient_queue: [dynamic]^Mole,
+	hammers:       [dynamic]Hammer,
 }
 glob := GAME_STATE {
 	scene = GAME_SCENE.Menu,
@@ -112,12 +129,11 @@ main :: proc() {
 }
 
 run :: proc() {
-	raylib.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "DOWN BELOW!")
+	raylib.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "MOLE RESCUE")
 	defer raylib.CloseWindow()
 	raylib.SetTargetFPS(FPS_LIMIT)
 	raylib.SetExitKey(.END)
 
-	// game stuff
 	sw := time.Stopwatch{}
 	defer time.stopwatch_stop(&sw)
 	glob.sw = &sw
@@ -139,21 +155,14 @@ run :: proc() {
 	glob.textures = populate_assets()
 	defer clear_assets(glob.textures)
 
-	for &m, i in glob.moles {
-		m = {
-			cooldown = 1,
-			state    = .cautious,
-			pos      = MOLE_POS[i],
-		}
-	}
+	add_hammer()
 
 	menu_loop: for !raylib.WindowShouldClose() {
 		debug_fallback_navigation()
 
 		switch glob.scene {
 		case .Menu:
-			time.stopwatch_reset(glob.sw)
-			clear(&glob.patient_queue)
+			reset_game()
 			menu()
 		case .Game:
 			game()
@@ -167,6 +176,27 @@ run :: proc() {
 	}
 
 	delete(glob.patient_queue)
+	delete(glob.moles)
+	delete(glob.hammers)
+}
+
+reset_game :: proc() {
+	clear(&glob.hammers)
+	add_hammer()
+
+	time.stopwatch_reset(glob.sw)
+	clear(&glob.patient_queue)
+	glob.score = 0
+
+	clear(&glob.moles)
+	clear(&glob.patient_queue)
+	for m_pos in MOLE_POS {
+		append(&glob.moles, Mole{cooldown = 1, state = .cautious, pos = m_pos})
+	}
+}
+
+add_hammer :: proc() {
+	append(&glob.hammers, Hammer{state = .cooldown, cooldown = 2, target = nil})
 }
 
 debug_fallback_navigation :: proc() {
@@ -203,10 +233,6 @@ data_to_cstring :: proc() -> (timer_str: cstring, score_str: cstring) {
 	score_str = strings.to_cstring(glob.s_builder)
 
 	return timer_str, score_str
-}
-
-reduce_alpha :: proc(c: raylib.Color) -> raylib.Color {
-	return c - raylib.Color{0, 0, 0, 128}
 }
 
 populate_assets :: proc() -> map[string]raylib.Texture2D {

@@ -17,3 +17,4 @@ You need to pull them back in time, or suffer the consequences of getting hit.
 ## milestones
 ![preview1](/brainstorming/preview1.gif)
 ![preview2](/brainstorming/preview2.gif)
+![preview3](/brainstorming/preview3.gif)
