@@ -179,20 +179,20 @@ draw_hammers :: proc() {
 		case .cooldown:
 			continue
 		case .ready:
-			raylib.DrawRectangle(
-				auto_cast t.pos.x + 14,
-				auto_cast t.pos.y - 100,
-				100,
-				70,
-				raylib.ORANGE,
+			raylib.DrawTextureEx(
+				glob.textures[ASSET_KEY[.hammer_idle]],
+				{t.pos.x + 60, t.pos.y - 128},
+				0,
+				8,
+				raylib.WHITE,
 			)
 		case .struck:
-			raylib.DrawRectangle(
-				auto_cast t.pos.x + 14,
-				auto_cast t.pos.y - 75,
-				100,
-				70,
-				raylib.RED,
+			raylib.DrawTextureEx(
+				glob.textures[ASSET_KEY[.hammer_struck]],
+				{t.pos.x + 60, t.pos.y - 128},
+				0,
+				8,
+				raylib.WHITE,
 			)
 		}
 	}

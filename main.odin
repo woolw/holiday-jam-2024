@@ -31,20 +31,24 @@ ASSETS :: enum {
 	mole,
 	mole_hurt,
 	mole_curious,
+	hammer_idle,
+	hammer_struck,
 }
 
 @(rodata)
 ASSET_KEY := [ASSETS]string {
-	.menu         = "assets/menu16.png",
-	.menu_bg      = "assets/menu.png",
-	.pause        = "assets/pause16.png",
-	.play         = "assets/play16.png",
-	.label        = "assets/empty_label16.png",
-	.bed_free     = "assets/hospital_bed_free.png",
-	.bed_occupied = "assets/hospital_bed_closed.png",
-	.mole         = "assets/mole.png",
-	.mole_hurt    = "assets/mole_hurt.png",
-	.mole_curious = "assets/mole_curious.png",
+	.menu          = "assets/menu16.png",
+	.menu_bg       = "assets/menu.png",
+	.pause         = "assets/pause16.png",
+	.play          = "assets/play16.png",
+	.label         = "assets/empty_label16.png",
+	.bed_free      = "assets/hospital_bed_free.png",
+	.bed_occupied  = "assets/hospital_bed_closed.png",
+	.mole          = "assets/mole.png",
+	.mole_hurt     = "assets/mole_hurt.png",
+	.mole_curious  = "assets/mole_curious.png",
+	.hammer_idle   = "assets/hammer1.png",
+	.hammer_struck = "assets/hammer2.png",
 }
 
 MOLE_STATE :: enum {
