@@ -33,6 +33,7 @@ ASSETS :: enum {
 	mole_curious,
 	hammer_idle,
 	hammer_struck,
+	game_bg,
 }
 
 @(rodata)
@@ -49,6 +50,7 @@ ASSET_KEY := [ASSETS]string {
 	.mole_curious  = "assets/mole_curious.png",
 	.hammer_idle   = "assets/hammer1.png",
 	.hammer_struck = "assets/hammer2.png",
+	.game_bg       = "assets/game_bg.png",
 }
 
 MOLE_STATE :: enum {

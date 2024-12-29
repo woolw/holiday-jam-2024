@@ -43,6 +43,7 @@ pause :: proc() {
 	raylib.BeginDrawing()
 	defer raylib.EndDrawing()
 	raylib.ClearBackground(raylib.WHITE)
+	raylib.DrawTexture(glob.textures[ASSET_KEY[.game_bg]], 0, 0, raylib.WHITE)
 
 	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.play]], g_button, 0, 8, raylib.WHITE)
 	raylib.DrawTextureEx(glob.textures[ASSET_KEY[.menu]], q_button, 0, 8, raylib.WHITE)

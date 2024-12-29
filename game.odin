@@ -42,6 +42,7 @@ game :: proc() {
 	raylib.BeginDrawing()
 	defer raylib.EndDrawing()
 	raylib.ClearBackground(raylib.WHITE)
+	raylib.DrawTexture(glob.textures[ASSET_KEY[.game_bg]], 0, 0, raylib.WHITE)
 
 	draw_misc()
 	draw_hammers()
