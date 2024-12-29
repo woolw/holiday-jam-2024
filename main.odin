@@ -29,6 +29,7 @@ ASSETS :: enum {
 	bed_occupied,
 	mole,
 	mole_hurt,
+	mole_curious,
 }
 
 @(rodata)
@@ -41,6 +42,7 @@ ASSET_KEY := [ASSETS]string {
 	.bed_occupied = "assets/hospital_bed_closed.png",
 	.mole         = "assets/mole.png",
 	.mole_hurt    = "assets/mole_hurt.png",
+	.mole_curious = "assets/mole_curious.png",
 }
 
 MOLE_STATE :: enum {

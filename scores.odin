@@ -45,7 +45,7 @@ score :: proc() {
 	raylib.DrawText(
 		"SCORE: ",
 		(WINDOW_WIDTH / 2) - raylib.MeasureText("SCORE: ", FONT_SIZE),
-		550,
+		600,
 		FONT_SIZE,
 		raylib.BLACK,
 	)

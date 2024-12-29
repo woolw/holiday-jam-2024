@@ -144,9 +144,17 @@ game :: proc() {
 				8,
 				raylib.WHITE,
 			)
-		} else {
+		} else if m.state == .cautious {
 			raylib.DrawTextureEx(
 				glob.textures[ASSET_KEY[.mole]],
+				{m.pos.x, m.pos.y},
+				0,
+				8,
+				raylib.WHITE,
+			)
+		} else {
+			raylib.DrawTextureEx(
+				glob.textures[ASSET_KEY[.mole_curious]],
 				{m.pos.x, m.pos.y},
 				0,
 				8,
