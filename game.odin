@@ -6,7 +6,7 @@ import "core:time"
 import "vendor:raylib"
 
 game :: proc() {
-	if len(glob.moles) == len(glob.patient_queue) {
+	if game_exit() {
 		glob.scene = .Score
 	}
 
@@ -200,4 +200,14 @@ get_pos_for_state :: proc(ms: MOLE_STATE, i: int) -> raylib.Rectangle {
 	case:
 		return MOLE_POS[i]
 	}
+}
+
+game_exit :: proc() -> bool {
+	for m in glob.moles {
+		if m.state == .cautious || m.state == .curious {
+			return false
+		}
+	}
+
+	return true
 }
