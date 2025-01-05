@@ -7,6 +7,12 @@ import "core:strings"
 import "core:time"
 import "vendor:raylib"
 
+when ODIN_OS == .Windows {
+	path_sep :: "\\"
+} else {
+	path_sep :: "/"
+}
+
 WINDOW_WIDTH :: 1920
 WINDOW_HEIGHT :: 1080
 FPS_LIMIT :: 120
@@ -38,19 +44,19 @@ ASSETS :: enum {
 
 @(rodata)
 ASSET_KEY := [ASSETS]string {
-	.menu          = "assets/menu16.png",
-	.menu_bg       = "assets/menu.png",
-	.pause         = "assets/pause16.png",
-	.play          = "assets/play16.png",
-	.label         = "assets/empty_label16.png",
-	.bed_free      = "assets/hospital_bed_free.png",
-	.bed_occupied  = "assets/hospital_bed_closed.png",
-	.mole          = "assets/mole.png",
-	.mole_hurt     = "assets/mole_hurt.png",
-	.mole_curious  = "assets/mole_curious.png",
-	.hammer_idle   = "assets/hammer1.png",
-	.hammer_struck = "assets/hammer2.png",
-	.game_bg       = "assets/game_bg.png",
+	.menu          = "menu16.png",
+	.menu_bg       = "menu.png",
+	.pause         = "pause16.png",
+	.play          = "play16.png",
+	.label         = "empty_label16.png",
+	.bed_free      = "hospital_bed_free.png",
+	.bed_occupied  = "hospital_bed_closed.png",
+	.mole          = "mole.png",
+	.mole_hurt     = "mole_hurt.png",
+	.mole_curious  = "mole_curious.png",
+	.hammer_idle   = "hammer1.png",
+	.hammer_struck = "hammer2.png",
+	.game_bg       = "game_bg.png",
 }
 
 MOLE_STATE :: enum {
@@ -248,7 +254,9 @@ populate_assets :: proc() -> map[string]raylib.Texture2D {
 		fmt.eprintln(err)
 	}
 	for match in matches {
-		assets[match] = raylib.LoadTexture(fmt.ctprintf("%s", match))
+		assets[match[strings.index(match, path_sep) + 1:]] = raylib.LoadTexture(
+			fmt.ctprintf("%s", match),
+		)
 	}
 	delete(matches)
 	return assets

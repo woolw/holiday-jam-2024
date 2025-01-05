@@ -15,17 +15,20 @@ fi
 while getopts "rdb" opt; do
     case ${opt} in
         r)
-            echo "RUNNING GAME"
+            rm -rf bin
+            mkdir bin
             odin run . -o:speed -out:bin/mac_bin 
             ;;
         d)
-            echo "DEBUGGING GAME"
+            rm -rf bin
+            mkdir bin
             odin run . -o:speed -out:bin/mac_bin --debug           
             ;;
         b)
-            echo "BUILDING GAME"
-
+            rm -rf bin
+            mkdir bin
             odin build . -o:speed -out:bin/mac_bin 
+            mkdir bin/release
             cp -r assets bin/release 
             cp bin/mac_bin bin/release
             ;;
